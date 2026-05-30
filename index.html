@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Keep or Skip</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--keep:#22c55e;--skip:#ef4444;--bg:#0a0a0f;--surface:#13131a;--card:#1c1c27;--border:#2a2a3a;--text:#f0f0ff;--muted:#7878a0;--radius:18px}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+header{display:flex;align-items:center;justify-content:space-between;padding:1.4rem 2rem;border-bottom:1px solid var(--border)}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;letter-spacing:-.03em}
+.logo span{color:var(--keep)}
+.header-stats{display:flex;gap:1.5rem}
+.hstat{text-align:right}
+.hstat-val{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem}
+.hstat-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.main{max-width:560px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+.card-area{position:relative;min-height:420px;display:flex;align-items:center;justify-content:center}
+.vote-card{width:100%;background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:2.5rem 2rem 2rem;transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .3s;position:relative;overflow:hidden}
+.vote-card::before{content:'';position:absolute;inset:0;opacity:.04;pointer-events:none;background:radial-gradient(ellipse at 30% 0%,#fff 0%,transparent 70%)}
+.category{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.75rem;font-weight:500}
+.item-name{font-family:'Syne',sans-serif;font-weight:800;font-size:2.1rem;line-height:1.15;margin-bottom:.6rem}
+.item-desc{font-size:.95rem;color:var(--muted);line-height:1.6;margin-bottom:2rem}
+.vote-bar-wrap{margin-bottom:1.8rem}
+.vote-bar{height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin-bottom:.5rem}
+.vote-bar-inner{height:100%;border-radius:999px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.vote-counts{display:flex;justify-content:space-between;font-size:.8rem}
+.vc-keep{color:var(--keep);font-weight:500}
+.vc-skip{color:var(--skip);font-weight:500}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.vote-btn{border:none;border-radius:14px;padding:1rem;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:transform .15s,opacity .15s,box-shadow .2s;display:flex;flex-direction:column;align-items:center;gap:.25rem}
+.vote-btn .btn-icon{font-size:1.5rem}
+.vote-btn .btn-label{font-size:.78rem;letter-spacing:.06em;opacity:.85}
+.btn-keep{background:var(--keep);color:#fff}
+.btn-skip{background:var(--skip);color:#fff}
+.vote-btn:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.vote-btn:active{transform:scale(.96)}
+.vote-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.voted-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;letter-spacing:-.02em;pointer-events:none;opacity:0;transition:opacity .3s}
+.voted-overlay.show{opacity:1}
+.voted-overlay.keep{background:rgba(34,197,94,.15);color:var(--keep);border:2px solid rgba(34,197,94,.3)}
+.voted-overlay.skip{background:rgba(239,68,68,.12);color:var(--skip);border:2px solid rgba(239,68,68,.25)}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem}
+.nav-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:.55rem 1.1rem;font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:background .15s}
+.nav-btn:hover{background:var(--card)}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.progress-info{font-size:.82rem;color:var(--muted)}
+.leaderboard{margin-top:3rem}
+.lb-title{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.2rem;font-family:'Syne',sans-serif;font-weight:700}
+.lb-tabs{display:flex;gap:.5rem;margin-bottom:1rem}
+.lb-tab{background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:.4rem .9rem;font-size:.8rem;cursor:pointer;transition:all .15s}
+.lb-tab.active.keep{background:rgba(34,197,94,.15);color:var(--keep);border-color:rgba(34,197,94,.3)}
+.lb-tab.active.skip{background:rgba(239,68,68,.12);color:var(--skip);border-color:rgba(239,68,68,.25)}
+.lb-list{display:flex;flex-direction:column;gap:.5rem}
+.lb-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.75rem 1rem;display:flex;align-items:center;gap:1rem}
+.lb-rank{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--muted);min-width:24px}
+.lb-name{flex:1;font-size:.9rem;font-weight:500}
+.lb-pct{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700}
+.lb-pct.keep{color:var(--keep)}
+.lb-pct.skip{color:var(--skip)}
+.add-section{margin-top:2.5rem}
+.add-toggle{background:var(--surface);border:1px dashed var(--border);color:var(--muted);border-radius:12px;padding:.7rem 1.2rem;font-size:.85rem;cursor:pointer;transition:all .15s;width:100%;font-family:'DM Sans',sans-serif}
+.add-toggle:hover{background:var(--card);color:var(--text)}
+.add-form{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-top:.75rem;display:none}
+.add-form.open{display:block}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem}
+.form-field{display:flex;flex-direction:column;gap:.35rem}
+.form-field.full{grid-column:1/-1}
+label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+input,select{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.55rem .75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;width:100%;transition:border .15s}
+input:focus,select:focus{border-color:#5555aa}
+select option{background:var(--surface)}
+.submit-btn{background:linear-gradient(135deg,#5c5ce0,#8b5cf6);color:#fff;border:none;border-radius:10px;padding:.65rem 1.4rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;width:100%;margin-top:.5rem;transition:opacity .15s}
+.submit-btn:hover{opacity:.88}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid var(--border);color:var(--text);padding:.65rem 1.4rem;border-radius:10px;font-size:.85rem;opacity:0;transition:all .3s;pointer-events:none;z-index:99}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;z-index:100;transition:opacity .4s}
+.loading-screen.hidden{opacity:0;pointer-events:none}
+.loader-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:2rem}
+.loader-logo span{color:var(--keep)}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--keep);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.slide-out-left{animation:slideOutLeft .28s forwards}
+.slide-out-right{animation:slideOutRight .28s forwards}
+.slide-in{animation:slideIn .35s cubic-bezier(.34,1.2,.64,1) forwards}
+@keyframes slideOutLeft{to{transform:translateX(-80px) rotate(-5deg);opacity:0}}
+@keyframes slideOutRight{to{transform:translateX(80px) rotate(5deg);opacity:0}}
+@keyframes slideIn{from{transform:translateY(30px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.realtime-dot{width:7px;height:7px;background:var(--keep);border-radius:50%;display:inline-block;margin-right:5px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading-screen">
+  <div class="loader-logo">Keep <span>or</span> Skip</div>
+  <div class="spinner"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<header>
+  <div class="logo">Keep <span>or</span> Skip</div>
+  <div class="header-stats">
+    <div class="hstat">
+      <div class="hstat-val" id="total-votes">—</div>
+      <div class="hstat-label">Total Votes</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val" id="total-items">—</div>
+      <div class="hstat-label">Items</div>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="card-area">
+    <div class="vote-card" id="vote-card">
+      <div class="category" id="card-cat">—</div>
+      <div class="item-name" id="card-name">Loading...</div>
+      <div class="item-desc" id="card-desc">Connecting to database...</div>
+      <div class="vote-bar-wrap">
+        <div class="vote-bar"><div class="vote-bar-inner" id="bar-inner" style="width:50%;background:var(--keep)"></div></div>
+        <div class="vote-counts">
+          <span class="vc-keep" id="keep-count">0 keep</span>
+          <span class="vc-skip" id="skip-count">0 skip</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="vote-btn btn-keep" id="btn-keep" onclick="vote('keep')" disabled>
+          <span class="btn-icon">✓</span>
+          <span class="btn-label">KEEP</span>
+        </button>
+        <button class="vote-btn btn-skip" id="btn-skip" onclick="vote('skip')" disabled>
+          <span class="btn-icon">✕</span>
+          <span class="btn-label">SKIP</span>
+        </button>
+      </div>
+      <div class="voted-overlay" id="voted-overlay"></div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" id="prev-btn" onclick="navigate(-1)" disabled>← Prev</button>
+    <span class="progress-info" id="progress-info">— / —</span>
+    <button class="nav-btn" id="next-btn" onclick="navigate(1)" disabled>Next →</button>
+  </div>
+
+  <div class="add-section">
+    <button class="add-toggle" onclick="toggleAddForm()">+ Add your own item</button>
+    <div class="add-form" id="add-form">
+      <div class="form-row">
+        <div class="form-field">
+          <label>Item Name</label>
+          <input type="text" id="new-name" placeholder="e.g. Pineapple on pizza"/>
+        </div>
+        <div class="form-field">
+          <label>Category</label>
+          <select id="new-cat">
+            <option>Food</option><option>Tech</option><option>Movies</option>
+            <option>Music</option><option>Habits</option><option>Fashion</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field full" style="margin-bottom:.75rem">
+        <label>Description (optional)</label>
+        <input type="text" id="new-desc" placeholder="Quick one-liner about this item"/>
+      </div>
+      <button class="submit-btn" id="submit-btn" onclick="addItem()">Add Item →</button>
+    </div>
+  </div>
+
+  <div class="leaderboard">
+    <div class="lb-title"><span class="realtime-dot"></span>Live Leaderboard</div>
+    <div class="lb-tabs">
+      <button class="lb-tab active keep" id="tab-keep" onclick="setTab('keep')">🏆 Most Kept</button>
+      <button class="lb-tab" id="tab-skip" onclick="setTab('skip')">💀 Most Skipped</button>
+    </div>
+    <div class="lb-list" id="lb-list"><div style="color:var(--muted);font-size:.85rem">Loading...</div></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, onSnapshot, increment, serverTimestamp, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA2-zZWiFW9-LmT8yC1fHyqqOAcSfhhAhk",
+  authDomain: "kas-database.firebaseapp.com",
+  projectId: "kas-database",
+  storageBucket: "kas-database.firebasestorage.app",
+  messagingSenderId: "1059230782602",
+  appId: "1:1059230782602:web:f9a46b49e9ad9ef2a48973"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const DEFAULTS = [
+  {id:'pineapple-pizza',name:'Pineapple on Pizza',cat:'Food',desc:'The controversial Hawaiian pizza topping that divides the world.'},
+  {id:'snooze-button',name:'Alarm Snooze Button',cat:'Habits',desc:'That extra 9 minutes of bliss... or morning ruin?'},
+  {id:'infinite-scroll',name:'Infinite Scroll',cat:'Tech',desc:'Social media feeds with no end — addictive or exhausting?'},
+  {id:'crocs',name:'Crocs Shoes',cat:'Fashion',desc:'The foam clogs that went from ugly to iconic.'},
+  {id:'netflix-autoplay',name:'Netflix Autoplay',cat:'Tech',desc:'Next episode starts automatically. Convenient or pushy?'},
+  {id:'open-plan-offices',name:'Open-Plan Offices',cat:'Habits',desc:'No walls, no privacy — does collaboration outweigh distraction?'},
+  {id:'reboots-remakes',name:'Reboots & Remakes',cat:'Movies',desc:'Hollywood reviving old franchises instead of new stories.'},
+  {id:'cilantro',name:'Cilantro',cat:'Food',desc:'Some taste fresh herb goodness, others taste soap. There is no in-between.'},
+];
+
+let items = [];
+let currentIdx = 0;
+let lbTab = 'keep';
+let userVotes = {};
+let unsubscribe = null;
+
+function getVoteKey(id) { return 'ksv_' + id; }
+function loadLocalVotes() {
+  DEFAULTS.forEach(d => {
+    const v = localStorage.getItem(getVoteKey(d.id));
+    if (v) userVotes[d.id] = v;
+  });
+  try {
+    const custom = localStorage.getItem('ks_custom_votes');
+    if (custom) Object.assign(userVotes, JSON.parse(custom));
+  } catch {}
+}
+
+function saveLocalVote(id, type) {
+  userVotes[id] = type;
+  localStorage.setItem(getVoteKey(id), type);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+async function seedDefaults() {
+  for (const d of DEFAULTS) {
+    const ref = doc(db, 'items', d.id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      await setDoc(ref, { name: d.name, cat: d.cat, desc: d.desc, keep: 0, skip: 0, createdAt: serverTimestamp() });
+    }
+  }
+}
+
+function subscribeItems() {
+  if (unsubscribe) unsubscribe();
+  const q = query(collection(db, 'items'), orderBy('createdAt', 'asc'));
+  unsubscribe = onSnapshot(q, (snap) => {
+    const prev = items[currentIdx]?.id;
+    items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (prev) {
+      const ni = items.findIndex(i => i.id === prev);
+      if (ni >= 0) currentIdx = ni;
+    }
+    if (currentIdx >= items.length) currentIdx = Math.max(0, items.length - 1);
+    render();
+    renderLB();
+    updateStats();
+    document.getElementById('loading-screen').classList.add('hidden');
+  }, (err) => {
+    console.error(err);
+    showToast('Connection error — check Firestore rules');
+    document.getElementById('loading-screen').classList.add('hidden');
+  });
+}
+
+async function vote(type) {
+  if (!items.length) return;
+  const item = items[currentIdx];
+  const prev = userVotes[item.id];
+  if (prev === type) return;
+  document.getElementById('btn-keep').disabled = true;
+  document.getElementById('btn-skip').disabled = true;
+  try {
+    const ref = doc(db, 'items', item.id);
+    const updates = { [type]: increment(1) };
+    if (prev) updates[prev] = increment(-1);
+    await updateDoc(ref, updates);
+    saveLocalVote(item.id, type);
+    const card = document.getElementById('vote-card');
+    card.style.transform = type === 'keep' ? 'scale(1.02) rotate(.5deg)' : 'scale(1.02) rotate(-.5deg)';
+    setTimeout(() => { card.style.transform = ''; }, 300);
+  } catch (e) {
+    showToast('Could not save vote — try again');
+    console.error(e);
+  }
+  document.getElementById('btn-keep').disabled = false;
+  document.getElementById('btn-skip').disabled = false;
+}
+
+function render() {
+  if (!items.length) return;
+  const item = items[currentIdx];
+  document.getElementById('card-cat').textContent = item.cat || '—';
+  document.getElementById('card-name').textContent = item.name;
+  document.getElementById('card-desc').textContent = item.desc || '';
+  const total = (item.keep || 0) + (item.skip || 0);
+  const kpct = total ? Math.round((item.keep || 0) / total * 100) : 50;
+  const bar = document.getElementById('bar-inner');
+  bar.style.width = kpct + '%';
+  bar.style.background = kpct >= 50 ? 'var(--keep)' : 'var(--skip)';
+  document.getElementById('keep-count').textContent = (item.keep || 0) + ' keep';
+  document.getElementById('skip-count').textContent = (item.skip || 0) + ' skip';
+  document.getElementById('progress-info').textContent = (currentIdx + 1) + ' / ' + items.length;
+  document.getElementById('prev-btn').disabled = currentIdx === 0;
+  document.getElementById('next-btn').disabled = currentIdx === items.length - 1;
+  document.getElementById('btn-keep').disabled = false;
+  document.getElementById('btn-skip').disabled = false;
+  const uv = userVotes[item.id];
+  const ov = document.getElementById('voted-overlay');
+  if (uv) {
+    ov.className = 'voted-overlay show ' + uv;
+    ov.textContent = uv === 'keep' ? '✓ KEPT' : '✕ SKIPPED';
+  } else {
+    ov.className = 'voted-overlay';
+    ov.textContent = '';
+  }
+}
+
+function updateStats() {
+  const total = items.reduce((a, i) => a + (i.keep || 0) + (i.skip || 0), 0);
+  document.getElementById('total-votes').textContent = total.toLocaleString();
+  document.getElementById('total-items').textContent = items.length;
+}
+
+function renderLB() {
+  const sorted = [...items]
+    .filter(i => (i.keep || 0) + (i.skip || 0) > 0)
+    .sort((a, b) => {
+      const ta = (a.keep||0)+(a.skip||0), tb = (b.keep||0)+(b.skip||0);
+      return lbTab === 'keep'
+        ? ((b.keep||0)/Math.max(tb,1)) - ((a.keep||0)/Math.max(ta,1))
+        : ((b.skip||0)/Math.max(tb,1)) - ((a.skip||0)/Math.max(ta,1));
+    }).slice(0, 5);
+  const list = document.getElementById('lb-list');
+  if (!sorted.length) {
+    list.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:.5rem 0">No votes yet — be the first!</div>';
+    return;
+  }
+  list.innerHTML = sorted.map((item, i) => {
+    const total = (item.keep||0) + (item.skip||0);
+    const pct = lbTab === 'keep'
+      ? Math.round((item.keep||0)/total*100)
+      : Math.round((item.skip||0)/total*100);
+    return `<div class="lb-item">
+      <div class="lb-rank">#${i+1}</div>
+      <div class="lb-name">${item.name}</div>
+      <div class="lb-pct ${lbTab}">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+window.navigate = function(dir) {
+  const newIdx = currentIdx + dir;
+  if (newIdx < 0 || newIdx >= items.length) return;
+  const card = document.getElementById('vote-card');
+  card.classList.add(dir < 0 ? 'slide-out-right' : 'slide-out-left');
+  setTimeout(() => {
+    card.classList.remove('slide-out-left', 'slide-out-right');
+    card.style.opacity = '0';
+    currentIdx = newIdx;
+    render();
+    card.classList.add('slide-in');
+    card.style.opacity = '1';
+    setTimeout(() => card.classList.remove('slide-in'), 400);
+  }, 280);
+};
+
+window.setTab = function(tab) {
+  lbTab = tab;
+  document.getElementById('tab-keep').className = 'lb-tab' + (tab === 'keep' ? ' active keep' : '');
+  document.getElementById('tab-skip').className = 'lb-tab' + (tab === 'skip' ? ' active skip' : '');
+  renderLB();
+};
+
+window.toggleAddForm = function() {
+  document.getElementById('add-form').classList.toggle('open');
+};
+
+window.addItem = async function() {
+  const name = document.getElementById('new-name').value.trim();
+  if (!name) { showToast('Please enter an item name'); return; }
+  const cat = document.getElementById('new-cat').value;
+  const desc = document.getElementById('new-desc').value.trim();
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  try {
+    const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + '-' + Date.now();
+    await setDoc(doc(db, 'items', id), { name, cat, desc, keep: 0, skip: 0, createdAt: serverTimestamp() });
+    document.getElementById('new-name').value = '';
+    document.getElementById('new-desc').value = '';
+    document.getElementById('add-form').classList.remove('open');
+    showToast('Item added! 🎉');
+  } catch (e) {
+    showToast('Error adding item — check Firestore rules');
+    console.error(e);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Add Item →';
+};
+
+loadLocalVotes();
+await seedDefaults();
+subscribeItems();
+</script>
+</body>
+</html>
