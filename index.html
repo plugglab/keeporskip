@@ -1,14 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Keep or Skip</title>
-<link rel="icon" href="favicon.ico" type="image/x-icon">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="index.css"/>
-
-
 <meta name="description" content="Keep or Skip – make fast decisions without overthinking." />
 
 <meta property="og:type" content="website" />
@@ -24,6 +21,72 @@
 </head>
 <body>
 
+<!-- AUTH MODAL -->
+<div class="modal-backdrop" id="auth-backdrop">
+  <div class="modal" id="auth-modal">
+    <div class="modal-logo">Keep <span>or</span> Skip</div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="modal-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
+    <div class="form-field" id="field-username" style="display:none">
+      <label>Username</label>
+      <input type="text" id="auth-username" placeholder="Pick a username"/>
+    </div>
+    <div class="form-field">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="you@example.com"/>
+    </div>
+    <div class="form-field">
+      <label>Password</label>
+      <input type="password" id="auth-password" placeholder="••••••••"/>
+    </div>
+    <button class="submit-btn" id="auth-submit" onclick="handleAuth()">Sign In</button>
+    <button class="modal-skip-btn" onclick="continueAsGuest()">Continue as guest →</button>
+  </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div class="modal-backdrop" id="admin-backdrop" style="display:none">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem">Admin Panel</span>
+      <button class="icon-btn" onclick="closeAdmin()">✕</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchAdminTab('items')">Items</button>
+      <button class="admin-tab" onclick="switchAdminTab('users')">Users</button>
+    </div>
+    <div id="admin-items-panel">
+      <div id="admin-items-list" class="admin-list"></div>
+    </div>
+    <div id="admin-users-panel" style="display:none">
+      <div id="admin-users-list" class="admin-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-backdrop" id="profile-backdrop" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem">Profile</span>
+      <button class="icon-btn" onclick="closeProfile()">✕</button>
+    </div>
+    <div class="profile-avatar" id="profile-avatar-big"></div>
+    <div class="profile-name" id="profile-name-display"></div>
+    <div class="profile-email" id="profile-email-display"></div>
+    <div class="profile-stats">
+      <div class="pstat"><div class="pstat-val" id="pstat-kept">0</div><div class="pstat-label">Kept</div></div>
+      <div class="pstat"><div class="pstat-val" id="pstat-skipped">0</div><div class="pstat-label">Skipped</div></div>
+      <div class="pstat"><div class="pstat-val" id="pstat-comments">0</div><div class="pstat-label">Comments</div></div>
+    </div>
+    <button class="submit-btn danger" onclick="handleSignOut()">Sign Out</button>
+  </div>
+</div>
+
+<!-- LOADING -->
 <div class="loading-screen" id="loading-screen">
   <div class="loader-logo">Keep <span>or</span> Skip</div>
   <div class="spinner"></div>
@@ -31,53 +94,90 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- HEADER -->
 <header>
   <div class="logo">Keep <span>or</span> Skip</div>
-  <div class="header-stats">
-    <div class="hstat">
-      <div class="hstat-val" id="total-votes">—</div>
-      <div class="hstat-label">Total Votes</div>
+  <div class="header-right">
+    <div class="header-stats">
+      <div class="hstat">
+        <div class="hstat-val" id="total-votes">—</div>
+        <div class="hstat-label">Votes</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-val" id="total-items">—</div>
+        <div class="hstat-label">Items</div>
+      </div>
     </div>
-    <div class="hstat">
-      <div class="hstat-val" id="total-items">—</div>
-      <div class="hstat-label">Items</div>
+    <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme" id="theme-btn">🌙</button>
+    <div class="user-area" id="user-area">
+      <button class="avatar-btn" id="avatar-btn" onclick="openProfile()"></button>
     </div>
   </div>
 </header>
 
+<!-- MAIN -->
 <div class="main">
-  <div class="card-area">
+
+  <!-- CARD -->
+  <div class="card-area" id="card-area">
+    <div class="swipe-hint" id="swipe-hint-left">← SKIP</div>
+    <div class="swipe-hint right" id="swipe-hint-right">KEEP →</div>
     <div class="vote-card" id="vote-card">
-      <div class="category" id="card-cat">—</div>
-      <div class="item-name" id="card-name">Loading...</div>
-      <div class="item-desc" id="card-desc">Connecting to database...</div>
-      <div class="vote-bar-wrap">
-        <div class="vote-bar"><div class="vote-bar-inner" id="bar-inner" style="width:50%;background:var(--keep)"></div></div>
-        <div class="vote-counts">
-          <span class="vc-keep" id="keep-count">0 keep</span>
-          <span class="vc-skip" id="skip-count">0 skip</span>
-        </div>
+      <div class="card-image" id="card-image" style="display:none">
+        <img id="card-img-el" src="" alt=""/>
       </div>
-      <div class="btn-row">
-        <button class="vote-btn btn-keep" id="btn-keep" onclick="vote('keep')" disabled>
-          <span class="btn-icon">✓</span>
-          <span class="btn-label">KEEP</span>
-        </button>
-        <button class="vote-btn btn-skip" id="btn-skip" onclick="vote('skip')" disabled>
-          <span class="btn-icon">✕</span>
-          <span class="btn-label">SKIP</span>
-        </button>
+      <div class="card-body">
+        <div class="category" id="card-cat">—</div>
+        <div class="item-name" id="card-name">Loading...</div>
+        <div class="item-desc" id="card-desc">Connecting to database...</div>
+        <div class="vote-bar-wrap">
+          <div class="vote-bar"><div class="vote-bar-inner" id="bar-inner" style="width:50%"></div></div>
+          <div class="vote-counts">
+            <span class="vc-keep" id="keep-count">0 keep</span>
+            <span class="vc-skip" id="skip-count">0 skip</span>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="vote-btn btn-skip" id="btn-skip" onclick="vote('skip')" disabled>
+            <span class="btn-icon">✕</span>
+            <span class="btn-label">SKIP</span>
+          </button>
+          <button class="vote-btn btn-keep" id="btn-keep" onclick="vote('keep')" disabled>
+            <span class="btn-icon">✓</span>
+            <span class="btn-label">KEEP</span>
+          </button>
+        </div>
       </div>
       <div class="voted-overlay" id="voted-overlay"></div>
     </div>
   </div>
 
+  <!-- NAV + REACTIONS -->
   <div class="nav-row">
     <button class="nav-btn" id="prev-btn" onclick="navigate(-1)" disabled>← Prev</button>
     <span class="progress-info" id="progress-info">— / —</span>
     <button class="nav-btn" id="next-btn" onclick="navigate(1)" disabled>Next →</button>
   </div>
 
+  <div class="reactions-row" id="reactions-row">
+    <button class="reaction-btn" onclick="react('🔥')">🔥 <span id="r-fire">0</span></button>
+    <button class="reaction-btn" onclick="react('😂')">😂 <span id="r-laugh">0</span></button>
+    <button class="reaction-btn" onclick="react('😮')">😮 <span id="r-wow">0</span></button>
+    <button class="reaction-btn" onclick="react('💀')">💀 <span id="r-skull">0</span></button>
+    <button class="reaction-btn" onclick="react('❤️')">❤️ <span id="r-heart">0</span></button>
+  </div>
+
+  <!-- COMMENTS -->
+  <div class="comments-section">
+    <div class="section-title">Comments</div>
+    <div class="comment-input-row" id="comment-input-row">
+      <input type="text" id="comment-input" placeholder="What do you think?" maxlength="200"/>
+      <button class="comment-send" onclick="postComment()">Send</button>
+    </div>
+    <div id="comments-list" class="comments-list"></div>
+  </div>
+
+  <!-- ADD ITEM -->
   <div class="add-section">
     <button class="add-toggle" onclick="toggleAddForm()">+ Add your own item</button>
     <div class="add-form" id="add-form">
@@ -98,21 +198,26 @@
         <label>Description (optional)</label>
         <input type="text" id="new-desc" placeholder="Quick one-liner about this item"/>
       </div>
+      <div class="form-field full" style="margin-bottom:.75rem">
+        <label>Image URL (optional)</label>
+        <input type="url" id="new-img" placeholder="https://..."/>
+      </div>
       <button class="submit-btn" id="submit-btn" onclick="addItem()">Add Item →</button>
     </div>
   </div>
 
+  <!-- LEADERBOARD -->
   <div class="leaderboard">
-    <div class="lb-title"><span class="realtime-dot"></span>Live Leaderboard</div>
+    <div class="section-title"><span class="realtime-dot"></span>Live Leaderboard</div>
     <div class="lb-tabs">
-      <button class="lb-tab active keep" id="tab-keep" onclick="setTab('keep')">🏆 Most Kept</button>
-      <button class="lb-tab" id="tab-skip" onclick="setTab('skip')">💀 Most Skipped</button>
+      <button class="lb-tab active keep" id="lbtab-keep" onclick="setLbTab('keep')">🏆 Most Kept</button>
+      <button class="lb-tab" id="lbtab-skip" onclick="setLbTab('skip')">💀 Most Skipped</button>
     </div>
     <div class="lb-list" id="lb-list"><div style="color:var(--muted);font-size:.85rem">Loading...</div></div>
   </div>
+
 </div>
 
-<!-- Script loaded at bottom so DOM is ready, type=module enables top-level await -->
 <script type="module" src="./index.js"></script>
 </body>
 </html>
