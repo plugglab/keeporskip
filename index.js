@@ -154,7 +154,6 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById('profile-name-display').textContent = user.displayName || 'Anonymous';
     document.getElementById('profile-email-display').textContent = user.email;
     loadLocalVotes(); loadLocalReactions();
-    if (!unsubItems) init();
   }
 });
 
