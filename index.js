@@ -201,14 +201,16 @@ window.closeProfile = function() { document.getElementById('profile-backdrop').s
 
 // ── SEED DEFAULTS ─────────────────────────────────────────
 async function seedDefaults() {
-  for (const d of DEFAULTS) {
-    const ref = doc(db, 'items', d.id);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) {
-      await setDoc(ref, { name:d.name, cat:d.cat, desc:d.desc, img:'', keep:0, skip:0,
-        reactions:{ fire:0, laugh:0, wow:0, skull:0, heart:0 }, createdAt:serverTimestamp() });
-    }
-  }
+  // Check all docs in parallel — no sequential awaiting
+  const snaps = await Promise.all(DEFAULTS.map(d => getDoc(doc(db, 'items', d.id))));
+  const missing = DEFAULTS.filter((_, i) => !snaps[i].exists());
+  if (!missing.length) return; // nothing to seed
+  await Promise.all(missing.map(d =>
+    setDoc(doc(db, 'items', d.id), {
+      name:d.name, cat:d.cat, desc:d.desc, img:'', keep:0, skip:0,
+      reactions:{ fire:0, laugh:0, wow:0, skull:0, heart:0 }, createdAt:serverTimestamp()
+    })
+  ));
 }
 
 // ── SUBSCRIBE ITEMS ───────────────────────────────────────
@@ -599,10 +601,12 @@ function timeAgo(date) {
 
 // ── INIT ──────────────────────────────────────────────────
 async function init() {
-  await seedDefaults();
+  // Subscribe immediately so UI appears fast
   subscribeItems();
   initSwipe();
   initKeyboard();
+  // Seed defaults in background — doesn't block rendering
+  seedDefaults().catch(console.error);
 }
 
 initTheme();
