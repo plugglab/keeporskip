@@ -539,5 +539,6 @@ async function init() {
 }
 
 initTheme();
+init();
 // Signed-in users: init triggered by onAuthStateChanged
 // Guests: init triggered by continueAsGuest()
