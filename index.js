@@ -7,6 +7,10 @@ import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
   signOut, onAuthStateChanged, updateProfile
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
 // ── FIREBASE ──────────────────────────────────────────────
 const firebaseConfig = {
@@ -541,3 +545,13 @@ initTheme();
 init();
 // Signed-in users: init triggered by onAuthStateChanged
 // Guests: init triggered by continueAsGuest()
+
+window.handleGoogle = async function () {
+  try {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+    document.getElementById('auth-backdrop').style.display = 'none';
+  } catch (e) {
+    document.getElementById('auth-error').textContent = e.message.replace('Firebase: ', '').replace(/\(.*\)/, '').trim();
+  }
+};

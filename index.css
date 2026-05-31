@@ -430,3 +430,22 @@ select option { background:var(--modal-bg); }
   .hstat-val { font-size:.9rem; }
   .hstat-label { display:none; }
 }
+
+.google-btn {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: .6rem 1rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  color: #333;
+  transition: box-shadow .15s;
+  width: 100%;
+}
+.google-btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,.15); }
