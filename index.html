@@ -5,21 +5,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Keep or Skip</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="icon" type="image/x-icon" href="favicon.ico"/>
 <link rel="stylesheet" href="index.css"/>
-
-<link rel="icon" type="image/x-icon" href="fav.ico" />
-<meta name="description" content="Keep or Skip – make fast decisions without overthinking." />
-
-<meta property="og:type" content="website" />
-<meta property="og:title" content="Keep or Skip" />
-<meta property="og:description" content="Make quick decisions: Keep or Skip. No overthinking." />
-<meta property="og:image" content="https://keeporskip.vercel.app/preview.png" />
-<meta property="og:url" content="https://keeporskip.vercel.app/" />
-
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Keep or Skip" />
-<meta name="twitter:description" content="Make fast decisions: Keep or Skip." />
-<meta name="twitter:image" content="https://keeporskip.vercel.app/preview.png" />
+<meta name="description" content="Keep or Skip – make fast decisions without overthinking."/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Keep or Skip"/>
+<meta property="og:description" content="Make quick decisions: Keep or Skip. No overthinking."/>
+<meta property="og:image" content="https://keeporskip.vercel.app/preview.png"/>
+<meta property="og:url" content="https://keeporskip.vercel.app/"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Keep or Skip"/>
+<meta name="twitter:description" content="Make fast decisions: Keep or Skip."/>
+<meta name="twitter:image" content="https://keeporskip.vercel.app/preview.png"/>
 </head>
 <body>
 
@@ -119,8 +116,6 @@
 
 <!-- MAIN -->
 <div class="main">
-
-  <!-- CARD -->
   <div class="card-area" id="card-area">
     <div class="swipe-hint" id="swipe-hint-left">← SKIP</div>
     <div class="swipe-hint right" id="swipe-hint-right">KEEP →</div>
@@ -154,7 +149,6 @@
     </div>
   </div>
 
-  <!-- NAV + REACTIONS -->
   <div class="nav-row">
     <button class="nav-btn" id="prev-btn" onclick="navigate(-1)" disabled>← Prev</button>
     <span class="progress-info" id="progress-info">— / —</span>
@@ -169,7 +163,6 @@
     <button class="reaction-btn" onclick="react('❤️')">❤️ <span id="r-heart">0</span></button>
   </div>
 
-  <!-- COMMENTS -->
   <div class="comments-section">
     <div class="section-title">Comments</div>
     <div class="comment-input-row" id="comment-input-row">
@@ -179,7 +172,6 @@
     <div id="comments-list" class="comments-list"></div>
   </div>
 
-  <!-- ADD ITEM -->
   <div class="add-section">
     <button class="add-toggle" onclick="toggleAddForm()">+ Add your own item</button>
     <div class="add-form" id="add-form">
@@ -208,7 +200,6 @@
     </div>
   </div>
 
-  <!-- LEADERBOARD -->
   <div class="leaderboard">
     <div class="section-title"><span class="realtime-dot"></span>Live Leaderboard</div>
     <div class="lb-tabs">
@@ -217,7 +208,6 @@
     </div>
     <div class="lb-list" id="lb-list"><div style="color:var(--muted);font-size:.85rem">Loading...</div></div>
   </div>
-
 </div>
 
 <script type="module" src="./index.js"></script>
