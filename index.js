@@ -22,7 +22,7 @@ const db  = getFirestore(app);
 const auth = getAuth(app);
 
 // ── ADMIN UIDs — paste your Firebase UID here ──
-const ADMIN_UIDS = ['REPLACE_WITH_YOUR_UID'];
+const ADMIN_UIDS = ['tPAqroIhq0N1c7ezbZWE7GlzcKf2'];
 
 // ── DEFAULT ITEMS ─────────────────────────────────────────
 const DEFAULTS = [
