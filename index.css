@@ -83,6 +83,22 @@ header {
 }
 .theme-btn:hover { transform: rotate(20deg) scale(1.1); }
 
+.leaderboard-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .85rem;
+  padding: .35rem .8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all .15s;
+}
+.leaderboard-link:hover { 
+  color: var(--keep);
+  background: var(--glow-keep);
+  border-color: rgba(34,197,94,.35);
+}
+
 .avatar-btn {
   width: 36px; height: 36px;
   border-radius: 50%;

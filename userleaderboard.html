@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>User Leaderboard - Keep or Skip</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="icon" type="image/x-icon" href="favicon.ico"/>
+  <link rel="stylesheet" href="userleaderboard.css"/>
+  <meta name="description" content="Top users on Keep or Skip – ranked by votes, items, and comments."/>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Keep <span>or</span> Skip</div>
+  <div class="header-right">
+    <a href="index.html" class="back-link">← Back to voting</a>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="page-title">
+    <h1>🏆 Community Leaderboards</h1>
+    <p>Meet the most engaged users on Keep or Skip</p>
+  </div>
+
+  <!-- VOTES LEADERBOARD -->
+  <div class="lb-section">
+    <div class="lb-section-title">
+      <span class="emoji">🔥</span>
+      <div>
+        <h2>Most Votes Cast</h2>
+        <p>Users who've voted the most</p>
+      </div>
+    </div>
+    <div class="lb-table" id="votes-list">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+
+  <!-- ITEMS LEADERBOARD -->
+  <div class="lb-section">
+    <div class="lb-section-title">
+      <span class="emoji">📝</span>
+      <div>
+        <h2>Most Items Added</h2>
+        <p>Users who've created the most items</p>
+      </div>
+    </div>
+    <div class="lb-table" id="items-list">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+
+  <!-- COMMENTS LEADERBOARD -->
+  <div class="lb-section">
+    <div class="lb-section-title">
+      <span class="emoji">💬</span>
+      <div>
+        <h2>Most Comments</h2>
+        <p>Users who've engaged in discussions the most</p>
+      </div>
+    </div>
+    <div class="lb-table" id="comments-list">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+
+  <!-- TOP CONTRIBUTORS -->
+  <div class="lb-section">
+    <div class="lb-section-title">
+      <span class="emoji">⭐</span>
+      <div>
+        <h2>Top Contributors</h2>
+        <p>Combined score across all metrics</p>
+      </div>
+    </div>
+    <div class="lb-table" id="contributors-list">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./userleaderboard.js"></script>
+</body>
+</html>
